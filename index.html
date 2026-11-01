@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koboweb - II</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<div class="cabinet-frame">
+
+    <!-- SCREEN 1: TERMINAL BOOT SEQUENCE PANEL -->
+    <div id="boot-panel">
+        <div class="system-title-small">[ CORE TERMINAL DETECTED ]</div>
+        
+        <div class="terminal-box">
+            <div class="terminal-line">&gt; BIOS v4.04 INITIALIZING...</div>
+            <div class="terminal-line">&gt; CHECKING STORAGE QUADRANTS... OK</div>
+            <div class="terminal-line">&gt; DETECTING MONOCHROME CANVAS... OK</div>
+            <div class="terminal-line">&gt; RUNTIME TARGET: WEBKIT ES5 PLATFORM</div>
+            <div class="terminal-line">&gt; HIDDEN SECTORS: ENCRYPTED [LINK SAFE]</div>
+            <div class="terminal-line">&gt; COIN SLOT STATUS: FREE PLAY MODE</div>
+        </div>
+
+        <div class="boot-prompt">READY TO LOAD MAIN OPERATING SYSTEM</div>
+        
+        <!-- Large high-contrast touch button to fire up the system -->
+        <button class="btn-boot" onclick="triggerSystemBoot()">🕹️ PRESS TO BOOT CABINET</button>
+    </div>
+
+
+    <!-- SCREEN 2: MAIN ARCADE CABINET PANEL (Hidden initially) -->
+    <div id="arcade-panel" style="display: none;">
+        
+        <!-- Rebuilt Block Text Header: 100% stable reading for KOBO ARCADE WEB -->
+        WELCOME TO KOBOWEB!!<br>THIS WEB IS DESIGNED FOR KOBO eREADERS, AND WAS INSPIRED BY <a href="https://koboweb.neocities.org">ETHAN S'S WEBSITE!</a><br>
+
+        <div class="system-badge">&gt; ARCHIVES LOADED: WELCOME PILOT &lt;</div>
+        <div class="insert-label">--- INSERT CARTRIDGE BELOW ---</div>
+
+        <!-- Game Cartridge Menu Slots -->
+        <div class="cartridge-rack">
+            
+            <a href="wordguess.html" class="cartridge-link">
+                <div class="cartridge">
+                    <div class="cart-notch"></div>
+                    <div class="cart-label">
+                        <span class="game-tag">GAME P1</span>
+                        <span class="game-title">WORD GUESS MACHINE</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="sudoku.html" class="cartridge-link">
+                <div class="cartridge">
+                    <div class="cart-notch"></div>
+                    <div class="cart-label">
+                        <span class="game-tag">GAME P2</span>
+                        <span class="game-title">SUDOKU CORE</span>
+                    </div>
+                </div>
+            </a>
+
+            <a href="dash.html" class="cartridge-link">
+                <div class="cartridge">
+                    <div class="cart-notch"></div>
+                    <div class="cart-label">
+                        <span class="game-tag">UTIL SYS</span>
+                        <span class="game-title">MINIMALIST DASHBOARD</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Cabinet Controls Footer Graphic -->
+        <pre class="controls-art">
+   ( A )   ( B )      [🕹️ CABINET OS]
+=======================================</pre>
+    </div>
+
+</div>
+
+<!-- High compatibility layout swap engine -->
+<script>
+    function triggerSystemBoot() {
+        // Toggle view containers cleanly without causing full page screen flashing
+        document.getElementById("boot-panel").style.display = "none";
+        document.getElementById("arcade-panel").style.display = "block";
+    }
+</script>
+
+</body>
+</html>
