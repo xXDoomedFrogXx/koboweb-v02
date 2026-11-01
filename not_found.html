@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page lost in the archives</title>
+    <link rel="stylesheet" href="404.css">
+</head>
+<body>
+
+<div class="maze-container">
+    <div class="error-code">404 - Page not found</div>
+    <h2>SHIFTING ARCHIVES</h2>
+    
+    <pre class="ascii-art" id="room-art">
+      .____________.
+
+      | []   []   |
+      |   _   _   |
+      |  [_] [_]  |
+      |___________|
+    </pre>
+
+    <div class="stats-bar">
+        <span id="oil-display">Lantern Oil: 15</span> | 
+        <span id="inventory-display">Inventory: None</span>
+    </div>
+    
+    <!-- Added explicit alert text informing players about the randomization mechanics -->
+    <div class="random-alert">⚠ Warning: Layout is randomly generated upon entering.</div>
+
+    <div class="room-description" id="room-text">
+        Generating dynamic layout...
+    </div>
+
+    <div class="d-pad" id="controls">
+        <div class="d-row">
+            <button class="btn-nav" id="btn-NORTH" onclick="move('NORTH')">NORTH</button>
+            <!-- Place this div directly under the "controls" div in 404.html -->
+        <div id="softlock-reset-zone" style="display: none; margin: 15px 0;">
+            <button class="btn-softlock-reset" onclick="initMaze()">
+                 🔄 BOXED IN! GENERATE NEW MAZE
+            </button>
+        </div>
+
+        </div>
+        <div class="d-row">
+            <button class="btn-nav" id="btn-WEST" onclick="move('WEST')">WEST</button>
+            <button class="btn-nav" id="btn-EAST" onclick="move('EAST')">EAST</button>
+        </div>
+        <div class="d-row">
+            <button class="btn-nav" id="btn-SOUTH" onclick="move('SOUTH')">SOUTH</button>
+        </div>
+</div>
+
+
+    <div id="escape-route" style="display: none;">
+        <a href="/" class="btn-home">RETURN TO WEBSITE</a>
+        <button class="btn-retry" onclick="initMaze()">RE-GENERATE MAZE</button>
+    </div>
+</div>
+
+<script src="404.js"></script>
+</body>
+</html>
