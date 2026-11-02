@@ -1,1 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kobo eBook System</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: serif; background-color: #fff; color: #000; margin: 5%; font-size: 18px; line-height: 1.4; }
+        .library-container { max-width: 500px; margin: 0 auto; text-align: center; }
+        .shelf-title { font-family: monospace, Courier; font-weight: bold; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 20px; text-transform: uppercase; }
+        
+        /* Series Block Targets (Minimum 48px height touch safety verification rules) */
+        .series-card { display: block; background: #fff; border: 3px double #000; padding: 14px; margin-bottom: 15px; text-decoration: none; color: #000; text-align: left; cursor: pointer; }
+        .series-card:active { background: #000; color: #fff; }
+        .series-meta { font-family: monospace; font-size: 12px; background: #000; color: #fff; padding: 2px 6px; display: inline-block; margin-bottom: 5px; font-weight: bold; }
+        .series-title { font-size: 20px; font-weight: bold; text-decoration: underline; }
+        
+        /* Book Row Items Frame */
+        .book-row { border: 2px solid #000; padding: 12px; margin-bottom: 12px; text-align: left; background: #fff; }
+        .book-title { font-size: 19px; font-weight: bold; }
+        .book-vol { font-family: monospace; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
+        
+        .btn-download { display: block; width: 100%; text-align: center; padding: 10px 0; background-color: #000; color: #fff; font-family: monospace; font-weight: bold; font-size: 14px; text-decoration: none; border: 2px solid #000; margin-top: 8px; }
+        .btn-download:active { background-color: #fff; color: #000; }
+        
+        .btn-control { display: inline-block; margin-top: 25px; padding: 10px 18px; background: #fff; border: 2px solid #000; font-family: monospace; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; cursor: pointer; }
+        .btn-control:active { background: #000; color: #fff; }
+    </style>
+</head>
+<body>
 
+<div class="library-container">
+    <div class="shelf-title" id="shelf-header">📚 BOOKSHELF INDEX</div>
+
+    <!-- PANEL 1: MAIN SERIES INDEX MENU SCREEN -->
+    <div id="series-menu-panel">
+        <p style="font-size: 14px; font-style: italic; margin-bottom: 20px;">Select a series box set configuration to inspect available books:</p>
+        
+        <!-- Series Card Trigger 1 -->
+        <button class="series-card" style="width: 100%;" onclick="openSeriesPanel('wonderland')">
+            <span class="series-meta">COLLECTION [2 BOOKS]</span>
+            <div class="series-title">Alice Adventures</div>
+        </button>
+
+        <!-- Series Card Trigger 2 -->
+        <button class="series-card" style="width: 100%;" onclick="openSeriesPanel('scifi')">
+            <span class="series-meta">COLLECTION [2 BOOKS]</span>
+            <div class="series-title">H.G. Wells Classics</div>
+        </button>
+    </div>
+
+
+    <!-- PANEL 2: ALICE IN WONDERLAND VOLUMES DISPLAY SCREEN -->
+    <div id="series-wonderland-panel" style="display: none;">
+        
+        <div class="book-row">
+            <div class="book-vol">VOLUME I</div>
+            <div class="book-title">Alice's Adventures in Wonderland</div>
+            <a href="books/alice.epub" download class="btn-download">📥 DOWNLOAD KOBO EPUB</a>
+        </div>
+
+        <div class="book-row">
+            <div class="book-vol">VOLUME II</div>
+            <div class="book-title">Through the Looking-Glass</div>
+            <a href="books/lookingglass.epub" download class="btn-download">📥 DOWNLOAD KOBO EPUB</a>
+        </div>
+
+        <button class="btn-control" onclick="returnToShelfIndex()">↩ RETURN TO SHELF</button>
+    </div>
+
+
+    <!-- PANEL 3: SCI-FI CLASSICS VOLUMES DISPLAY SCREEN -->
+    <div id="series-scifi-panel" style="display: none;">
+        
+        <div class="book-row">
+            <div class="book-vol">VOLUME I</div>
+            <div class="book-title">The Time Machine</div>
+            <a href="books/timemachine.epub" download class="btn-download">📥 DOWNLOAD EPUB</a>
+        </div>
+
+        <div class="book-row">
+            <div class="book-vol">VOLUME II</div>
+            <div class="book-title">The War of the Worlds</div>
+            <a href="books/warworlds.epub" download class="btn-download">📥 DOWNLOAD EPUB</a>
+        </div>
+
+        <button class="btn-control" onclick="returnToShelfIndex()">↩ RETURN TO SHELF</button>
+    </div>
+
+    <!-- Shared Static Navigation Footer -->
+    <div id="cabinet-home-link" style="margin-top: 15px;">
+        <a href="index.html" class="btn-control">🏠 LEAVE LIBRARY</a>
+    </div>
+</div>
+
+<!-- High compatibility view swapping engine logic -->
+<script>
+    var activeSeriesId = null;
+
+    function openSeriesPanel(seriesId) {
+        activeSeriesId = seriesId;
+        
+        // Hide index menu pane container
+        document.getElementById("series-menu-panel").style.display = "none";
+        document.getElementById("cabinet-home-link").style.display = "none";
+        
+        // Unhide the specific target collection partition panel
+        document.getElementById("series-" + seriesId + "-panel").style.display = "block";
+        
+        // Dynamically adjust header label text
+        var titleMap = { wonderland: "SERIES: ALICE ADVENTURES", scifi: "SERIES: H.G. WELLS" };
+        document.getElementById("shelf-header").innerHTML = titleMap[seriesId] || "VOLUMES INDEX";
+    }
+
+    function returnToShelfIndex() {
+        if (activeSeriesId) {
+            // Close active pane
+            document.getElementById("series-" + activeSeriesId + "-panel").style.display = "none";
+        }
+        
+        // Restore default layout conditions
+        document.getElementById("series-menu-panel").style.display = "block";
+        document.getElementById("cabinet-home-link").style.display = "block";
+        document.getElementById("shelf-header").innerHTML = "📚 BOOKSHELF INDEX";
+        activeSeriesId = null;
+    }
+</script>
+
+</body>
+</html>
