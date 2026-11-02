@@ -56,29 +56,23 @@
         <a href="index.html" class="btn-back">🏠 BACK TO CABINET</a>
     </div>
 </div>
-
 <script>
     // 🌐 PASTE YOUR UNIQUE SUPABASE CREDS HERE!
-    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co/rest/v1/";
-    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT";
+    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co/rest/v1/"; 
+    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
 
     function fetchRequestMessages() {
         var feed = document.getElementById("chat-stream");
         
-                var xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
         
-        // 🎯 THESE THREE HEADERS ARE MANDATORY FOR THE NEW KEYS
+        // Pure apikey connection setup
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
-        xhr.setRequestHeader("Content-Profile", "public");
         
         xhr.onreadystatechange = function() {
-
-
-        xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
+                if (xhr.status === 200 || xhr.status === 201) {
                     var data = JSON.parse(xhr.responseText);
                     var htmlBuffer = "";
                     
@@ -102,7 +96,7 @@
                     }
                     feed.innerHTML = htmlBuffer;
                 } else {
-                    feed.innerHTML = "Error pulling messages. Code: " + xhr.status;
+                    feed.innerHTML = "Error pulling messages. System Code: " + xhr.status;
                 }
             }
         };
@@ -117,16 +111,12 @@
             return alert("Both alias and request fields must be filled!");
         }
 
-                var xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
         
-        // 🎯 THESE FIVE HEADERS ARE MANDATORY FOR SENDING DATA
+        // Exact header layout required for publishable keys
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
-        xhr.setRequestHeader("Content-Profile", "public");
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Prefer", "return=representation");
-
 
         var payload = JSON.stringify({
             "name": nameInput,
@@ -135,28 +125,27 @@
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                if (xhr.status === 201) {
-                    // Wipe the message line input box clear
+                // FIXED: Accepts any success code (200, 201, or 204) from the cloud server
+                if (xhr.status >= 200 && xhr.status <= 299) {
                     document.getElementById("user-msg").value = "";
-                    // Immediately fetch fresh dataset to show new message
+                    alert("🛰️ TRANSMISSION SUCCESSFUL! Message posted.");
                     fetchRequestMessages();
                 } else {
-                    alert("Transmission failure. Check DB configuration rules.");
+                    alert("Transmission failure. Server returned error code: " + xhr.status);
                 }
             }
         };
         xhr.send(payload);
     }
 
-    // Mini safety logic rules to prevent code injections inside comments
     function escapeHtml(str) {
         if (!str) return "";
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Load recent stream upon cartridge mount boot loop execution
     fetchRequestMessages();
 </script>
+
 
 </body>
 </html>
