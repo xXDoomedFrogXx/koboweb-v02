@@ -57,7 +57,7 @@
     </div>
 </div>
 <script>
-    // 🌐 PASTE YOUR UNIQUE SUPABASE CREDS HERE!
+        // 🌐 PASTE YOUR UNIQUE SUPABASE CREDS HERE!
     var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co/rest/v1/"; 
     var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT"; 
 
@@ -67,8 +67,9 @@
         var xhr = new XMLHttpRequest();
         xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
         
-        // Pure apikey connection setup
+        // Both headers are required for the new sb_publishable keys to bypass the server gate
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
@@ -96,7 +97,7 @@
                     }
                     feed.innerHTML = htmlBuffer;
                 } else {
-                    feed.innerHTML = "Error pulling messages. System Code: " + xhr.status;
+                    feed.innerHTML = "Error pulling messages. Code: " + xhr.status;
                 }
             }
         };
@@ -114,8 +115,9 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
         
-        // Exact header layout required for publishable keys
+        // 🎯 FIX: Passing the publishable key on BOTH headers satisfies the API gateway requirements
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
         xhr.setRequestHeader("Content-Type", "application/json");
 
         var payload = JSON.stringify({
@@ -125,11 +127,10 @@
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                // FIXED: Accepts any success code (200, 201, or 204) from the cloud server
+                // Accepts any valid server confirmation code (200, 201, or 204)
                 if (xhr.status >= 200 && xhr.status <= 299) {
                     document.getElementById("user-msg").value = "";
-                    alert("🛰️ TRANSMISSION SUCCESSFUL! Message posted.");
-                    fetchRequestMessages();
+                    fetchRequestMessages(); // Automatically load your fresh message onto the board!
                 } else {
                     alert("Transmission failure. Server returned error code: " + xhr.status);
                 }
@@ -145,7 +146,3 @@
 
     fetchRequestMessages();
 </script>
-
-
-</body>
-</html>
