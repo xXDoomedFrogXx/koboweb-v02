@@ -65,11 +65,11 @@
         var feed = document.getElementById("chat-stream");
         
         var xhr = new XMLHttpRequest();
+        // 🎯 TIP: If your table on Supabase is missing the "s", delete the "s" from "book_requests" below!
         xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
         
-        // Both headers are required for the new sb_publishable keys to bypass the server gate
+        // This is the code that successfully opened the door for you!
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
@@ -115,9 +115,8 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
         
-        // 🎯 FIX: Passing the publishable key on BOTH headers satisfies the API gateway requirements
+        // Match the working connection headers
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
-        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
         xhr.setRequestHeader("Content-Type", "application/json");
 
         var payload = JSON.stringify({
@@ -127,12 +126,12 @@
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                // Accepts any valid server confirmation code (200, 201, or 204)
+                // If it saves perfectly, reload the screen stream list automatically
                 if (xhr.status >= 200 && xhr.status <= 299) {
                     document.getElementById("user-msg").value = "";
-                    fetchRequestMessages(); // Automatically load your fresh message onto the board!
+                    fetchRequestMessages(); 
                 } else {
-                    alert("Transmission failure. Server returned error code: " + xhr.status);
+                    alert("Transmission failure. Code: " + xhr.status);
                 }
             }
         };
