@@ -65,17 +65,38 @@
         var feed = document.getElementById("chat-stream");
         
         var xhr = new XMLHttpRequest();
-        // 🎯 TARGETING THE BUILT-IN SYSTEM NETWORKS TO BYPASS 404 BLOCKS
-        xhr.open("GET", SUPABASE_URL + "/rest/v1/objects?select=*", true);
+        // This sets up the direct pipeline connection path
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
         
         xhr.setRequestHeader("apikey", SUPABASE_KEY);
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200 || xhr.status === 201) {
-                    feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>🚀 CONNECTION SUCCESSFUL! The gateway is open.</div>";
+                    var data = JSON.parse(xhr.responseText);
+                    var htmlBuffer = "";
+                    
+                    if (data.length === 0) {
+                        feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is entirely empty. Be the first to type a message!</div>";
+                        return;
+                    }
+
+                    for (var i = 0; i < data.length; i++) {
+                        var timeStr = "";
+                        try {
+                            var dateObj = new Date(data[i].created_at);
+                            timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        } catch(e) { timeStr = "--:--"; }
+
+                        htmlBuffer += "<div class='msg-bubble'>" +
+                            "<span class='msg-time'>" + timeStr + "</span>" +
+                            "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
+                            "<span>" + escapeHtml(data[i].message) + "</span>" +
+                            "</div>";
+                    }
+                    feed.innerHTML = htmlBuffer;
                 } else {
-                    feed.innerHTML = "Gateway Status Code: " + xhr.status + " (Double-check your Project URL and Publishable Key)";
+                    feed.innerHTML = "Gateway Status Code: " + xhr.status + " (Check URL spelling layout)";
                 }
             }
         };
@@ -90,8 +111,33 @@
             return alert("Both alias and request fields must be filled!");
         }
 
-        // Alerting locally for validation safety
-        alert("Pilot Name: " + nameInput + "\nRequesting: " + msgInput + "\n\nDatabase sync testing in progress!");
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
+        
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        var payload = JSON.stringify({
+            "name": nameInput,
+            "message": msgInput
+        });
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
+                    document.getElementById("user-msg").value = "";
+                    fetchRequestMessages(); 
+                } else {
+                    alert("Transmission failure. Code: " + xhr.status);
+                }
+            }
+        };
+        xhr.send(payload);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     fetchRequestMessages();
