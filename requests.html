@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koboarcade Book Requests</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body { font-family: monospace, Courier, serif; background-color: #fff; color: #000; margin: 4%; font-size: 16px; line-height: 1.4; }
+        .board-container { max-width: 500px; margin: 0 auto; text-align: center; }
+        .board-title { font-weight: bold; font-size: 16px; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
+        
+        /* Chat Feed Box Layout */
+        .message-feed { border: 2px solid #000; height: 260px; overflow-y: scroll; text-align: left; padding: 8px; background: #fff; margin-bottom: 15px; }
+        .msg-bubble { border-bottom: 1px dashed #000; padding: 6px 0; margin-bottom: 4px; font-size: 14px; }
+        .msg-user { font-weight: bold; text-decoration: underline; }
+        .msg-time { font-size: 11px; color: #555; float: right; }
+        
+        /* Form Field Layout Inputs */
+        .input-row { margin-bottom: 10px; text-align: left; }
+        .input-label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; }
+        .field-box { width: 95%; padding: 8px; border: 2px solid #000; font-family: monospace; font-size: 15px; background: #fff; }
+        
+        .btn-submit { display: block; width: 100%; text-align: center; padding: 12px 0; background-color: #000; color: #fff; font-weight: bold; font-size: 15px; text-decoration: none; border: 2px solid #000; cursor: pointer; }
+        .btn-submit:active { background-color: #fff; color: #000; }
+        
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 16px; background: #fff; border: 2px solid #000; font-weight: bold; text-decoration: none; color: #000; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="board-container">
+    <div class="board-title">💬 REAL-TIME REQUEST BOARD</div>
+    <p style="font-size: 13px; font-style: italic; margin-bottom: 15px;">Ask for new book additions or series updates below. Feed refreshes on submission.</p>
+
+    <!-- LIVE CONVERSATION STREAM FEED -->
+    <div class="message-feed" id="chat-stream">
+        Loading recent board messages...
+    </div>
+
+    <!-- TRANSMIT REQUEST FORM INTERFACE -->
+    <div class="input-row">
+        <span class="input-label">&gt; PILOT ALIAS:</span>
+        <input type="text" id="user-name" class="field-box" placeholder="KoboUser77" maxlength="15">
+    </div>
+    
+    <div class="input-row">
+        <span class="input-label">&gt; BOOK REQUEST DETAILS:</span>
+        <input type="text" id="user-msg" class="field-box" placeholder="Please add Percy Jackson Vol 1!" maxlength="80">
+    </div>
+
+    <button class="btn-submit" onclick="submitRequestMessage()">🛰️ TRANSMIT MESSAGE</button>
+
+    <!-- Navigation Footer -->
+    <div>
+        <a href="index.html" class="btn-back">🏠 BACK TO CABINET</a>
+    </div>
+</div>
+
+<script>
+    // 🌐 PASTE YOUR UNIQUE SUPABASE CREDS HERE!
+    var SUPABASE_URL = "https://hzcnqfzyehoctkviyfwf.supabase.co/rest/v1/";
+    var SUPABASE_KEY = "sb_publishable_mEl59NFDbz1V7YS_kO_OTw_4PnkhrNT";
+
+    function fetchRequestMessages() {
+        var feed = document.getElementById("chat-stream");
+        
+        // Primitive HTTP request targeting Supabase Rest API layer
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SUPABASE_URL + "/rest/v1/book_requests?select=*&order=created_at.desc&limit=15", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    var htmlBuffer = "";
+                    
+                    if (data.length === 0) {
+                        feed.innerHTML = "<div style='text-align:center; padding-top:40px; font-style:italic;'>The board is entirely empty. Be the first to type a message!</div>";
+                        return;
+                    }
+
+                    for (var i = 0; i < data.length; i++) {
+                        var timeStr = "";
+                        try {
+                            var dateObj = new Date(data[i].created_at);
+                            timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        } catch(e) { timeStr = "--:--"; }
+
+                        htmlBuffer += "<div class='msg-bubble'>" +
+                            "<span class='msg-time'>" + timeStr + "</span>" +
+                            "<span class='msg-user'>" + escapeHtml(data[i].name) + "</span>: " +
+                            "<span>" + escapeHtml(data[i].message) + "</span>" +
+                            "</div>";
+                    }
+                    feed.innerHTML = htmlBuffer;
+                } else {
+                    feed.innerHTML = "Error pulling messages. Code: " + xhr.status;
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    function submitRequestMessage() {
+        var nameInput = document.getElementById("user-name").value.trim();
+        var msgInput = document.getElementById("user-msg").value.trim();
+
+        if (!nameInput || !msgInput) {
+            return alert("Both alias and request fields must be filled!");
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SUPABASE_URL + "/rest/v1/book_requests", true);
+        xhr.setRequestHeader("apikey", SUPABASE_KEY);
+        xhr.setRequestHeader("Authorization", "Bearer " + SUPABASE_KEY);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Prefer", "return=representation");
+
+        var payload = JSON.stringify({
+            name: nameInput,
+            message: msgInput
+        });
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 201) {
+                    // Wipe the message line input box clear
+                    document.getElementById("user-msg").value = "";
+                    // Immediately fetch fresh dataset to show new message
+                    fetchRequestMessages();
+                } else {
+                    alert("Transmission failure. Check DB configuration rules.");
+                }
+            }
+        };
+        xhr.send(payload);
+    }
+
+    // Mini safety logic rules to prevent code injections inside comments
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Load recent stream upon cartridge mount boot loop execution
+    fetchRequestMessages();
+</script>
+
+</body>
+</html>
