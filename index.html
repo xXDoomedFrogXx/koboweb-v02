@@ -104,13 +104,34 @@
 </div>
 
 <!-- High compatibility layout swap engine -->
+<!-- Replace the old script area at the bottom of index.html with this exactly -->
 <script>
     function triggerSystemBoot() {
-        // Toggle view containers cleanly without causing full page screen flashing
+        // Save to browser memory that the cabinet is turned on
+        try {
+            sessionStorage.setItem("cabinet_booted", "true");
+        } catch(e) { /* Fallback for strict privacy settings */ }
+
+        // Switch panels instantly
         document.getElementById("boot-panel").style.display = "none";
         document.getElementById("arcade-panel").style.display = "block";
     }
-</script>
 
-</body>
-</html>
+    // AUTOMATIC SYSTEM CHECK ON PAGE LOAD
+    function checkCabinetSystemState() {
+        try {
+            var systemIsOn = sessionStorage.getItem("cabinet_booted");
+            
+            // If browser memory confirms it already booted once, skip the intro!
+            if (systemIsOn === "true") {
+                document.getElementById("boot-panel").style.display = "none";
+                document.getElementById("arcade-panel").style.display = "block";
+            }
+        } catch(e) {
+            // If memory is blocked, just show default boot panel safely
+        }
+    }
+
+    // Auto-run the system check the millisecond the page mounts
+    checkCabinetSystemState();
+</script>
